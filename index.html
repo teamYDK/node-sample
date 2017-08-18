@@ -1,0 +1,118 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>map</title>
+  </head>
+  <body>
+
+    <!-- 幅・高さの設定 -->
+    
+    <div id="map" style="width:1300px; height:750px"></div>
+    
+    <script type="text/javascript" charset="utf-8" src="https://map.yahooapis.jp/js/V1/jsapi?appid=dj00aiZpPWd0Ukt6MmFmMTZPMCZzPWNvbnN1bWVyc2VjcmV0Jng9YWE-"></script>
+    <script type="text/javascript">
+      
+      window.onload = function(){
+      
+      var map = new Y.Map("map", {
+          configure : {
+                        scrollWheelZoom : true,  <!-- マウスのスクロールによるズーム -->
+                        continuousZoom : true    <!-- ズーム時のなめらかなアニメーション-->
+           }
+         }
+      );
+      
+      map.drawMap(new Y.LatLng(35.66572, 139.73100), 17, Y.LayerSetId.NORMAL);
+      map.addControl(new Y.LayerSetControl());
+      map.addControl(new Y.SliderZoomControlHorizontal());
+      map.addControl(new Y.CenterMarkControl());
+
+      <!-- 画像の表示 -->
+      var icon = new Y.Icon('<img src="./chizu/RopTTW.JPG" width="4" height="1">');
+      var marker = new Y.Marker(new Y.LatLng(35.660826, 139.730168));
+      map.addFeature(marker);
+
+      <!-- スタイル地図レイヤーの生成 -->
+      stylemaplayer = new Y.StyleMapLayer("simple");
+      setStyle();
+
+      <!-- レイヤーセットの作成 -->
+      layerset = new Y.LayerSet("スタイル地図", [stylemaplayer]);
+
+      <!-- Mapオブジェクトにレイヤーセットに追加 -->
+      map.addLayerSet("stylemap",layerset);
+
+      <!-- 標準地図レイヤーをレイヤーセットから削除 -->
+      map.removeLayerSet(Y.LayerSetId.NORMAL);
+
+      <!-- 地図の描画 -->
+      map.drawMap(new Y.LatLng(35.662484, 139.734222), 15 , "stylemap");
+
+      }
+
+      <!-- スタイルの設定 -->
+
+      function setStyle() {
+       var param = document.getElementById("style_onoff").value;
+       if(param.indexOf(";") != -1) param="";
+       if(param.indexOf("(") != -1) param="";
+       if(param.indexOf(")") != -1) param="";
+       var style = "";
+       if(param != "") style = eval(param);
+
+       <!-- スタイルの設定 -->
+       stylemaplayer.setStyle(style);
+ 
+      }
+
+      <!-- 図式の設定 -->
+      function setBase(selbox) {
+      
+       var idx = selbox.selectedIndex;
+       var basename = selbox.options[idx].value;
+
+        if (basename == "hybridPhoto") {
+      
+        <!-- 航空写真のハイブリッド表現の有効 -->
+        map.setConfigure("hybridPhoto",true);
+
+         <!-- レイヤーセットを航空写真のハイブリッド表現に切り替え -->
+         if (map.getCurrentLayerSetId() != Y.LayerSetId.PHOTO) {
+      
+          map.setLayerSet(Y.LayerSetId.PHOTO);
+ 
+         }
+
+        }
+
+         else {
+      
+          <!-- 航空写真のハイブリッド表現を無効 -->
+          map.setConfigure("hybridPhoto",false);
+      
+          <!-- レイヤーセットからスタイル地図レイヤーを削除 -->
+          layerset.removeLayer(stylemaplayer);
+      
+          <!-- 選択された図式名で新しくスタイル地図レイヤーを作成 -->
+          stylemaplayer = new Y.StyleMapLayer(basename);
+      
+          <!-- 作成したスタイル地図レイヤーをレイヤーセットに追加 -->
+          layerset.addLayer(stylemaplayer);
+      
+          <!-- 地図を再描画 -->
+          map.redraw(true);
+      
+          <!-- レイヤーセットをスタイル地図に切り替え -->
+            if (map.getCurrentLayerSetId() != "stylemap") {
+             map.setLayerSet("stylemap");
+            }
+      
+          }
+      
+      setStyle();
+      
+      }
+
+    </script>
+  </body>
+</html>
